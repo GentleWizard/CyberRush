@@ -23,7 +23,9 @@ class CyberRush:
         self.enemy = Enemy(200, 200)
 
         # UI
-        self.player_health_bar = player_Health_Bar(0, 0, self.player)
+        self.player_health_bar = player_Health_Bar(
+            self.player.rect.center[0], (self.player.rect.center[1] - 10), self.player
+        )
         self.player_data_cubes = player_Data_Cubes(0, 20, self.player)
 
         # Groups
@@ -46,6 +48,11 @@ class CyberRush:
             self.data_cube = DataCube(self.width, self.height)
             self.data_cube_group.add(self.data_cube)
 
+        if pygame.sprite.groupcollide(
+            self.player_group, self.enemy_group, False, False
+        ):
+            self.enemy.attack(self.player)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -53,6 +60,12 @@ class CyberRush:
                 if event.key in self.movement_keys:
                     current_direction = {"key": event.key}
                     self.player.direction.append(current_direction)
+
+                if event.key == pygame.K_e:
+                    self.player.health -= 10
+                    print(self.player.health)
+                elif event.key == pygame.K_q:
+                    self.player.health += 10
 
             if event.type == pygame.KEYUP:
                 if event.key in self.movement_keys:
@@ -95,7 +108,10 @@ class Player(Sprite):
         super().__init__()
         # Stats
         self.health = 100
+        self.max_health = 100
+        self.health_percentage = self.health / self.max_health
         self.speed = 3
+        self.alive = True
 
         # Data Cubes
         self.data_cubes = 0
@@ -147,6 +163,8 @@ class Player(Sprite):
         if self.data_cubes_cooldown > 0:
             self.data_cubes_cooldown -= 1
         self.movement()
+
+        self.health_percentage = self.health / 100
 
     def pickup_data_cube(self):
         if self.data_cubes_cooldown > 0:
@@ -216,12 +234,38 @@ class player_Health_Bar(UserInterface):
     def __init__(self, x, y, player, text=True, image=False, image_path=None):
         super().__init__(x, y, text, image, image_path)
         self.player = player
-        self.content = f"Health: {self.player.health}"
+        self.content = f"{self.player.health}"
         self.text = self.font.render(self.content, True, self.colour)
 
+        self.rect = self.text.get_rect()
+
+        self.width = self.rect.width
+        self.height = self.rect.height
+        self.health_colour = (0, 255, 0)
+
     def update(self):
-        self.content = f"Health: {self.player.health}"
-        self.text = self.font.render(self.content, True, self.colour)
+        self.content = f"{self.player.health}"
+
+        self.width = self.rect.width
+        self.height = self.rect.height
+        self.rect.x = self.player.rect.center[0] - (self.width // 1.5)
+        self.rect.y = self.player.rect.center[1] - (self.height * 1.6)
+
+        if self.player.health < self.player.max_health:
+            self.__calculate_health_colour()
+        self.text = self.font.render(self.content, True, self.health_colour)
+
+        if self.player.health <= 0:
+            self.kill()
+
+    def __calculate_health_colour(self):
+        r = 255 * (1 - self.player.health_percentage) * 2
+        g = 255 * self.player.health_percentage
+        b = 0
+        r = min(r, 255)
+        g = min(g, 255)
+        b = min(b, 255)
+        self.health_colour = (r, g, b)
 
 
 class player_Data_Cubes(UserInterface):
@@ -278,12 +322,24 @@ class Enemy(Sprite):
         self.rect.x = x
         self.rect.y = y
 
+        self.hitdelay = 0
+        self.damage = 10
+
         self.display_info = pygame.display.Info()
         self.game_width = self.display_info.current_w
         self.game_height = self.display_info.current_h
 
     def update(self):
-        pass
+        if self.hitdelay > 0:
+            self.hitdelay -= 1
+        print(self.hitdelay)
+
+    def attack(self, player):
+        if self.hitdelay > 0:
+            return
+        player.health -= self.damage + player.data_cubes
+        print(player.health)
+        self.hitdelay = 65
 
 
 if __name__ == "__main__":
