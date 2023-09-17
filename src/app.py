@@ -20,6 +20,7 @@ class CyberRush:
         # Entities
         self.player = Player(100, 100)
         self.data_cube = DataCube(width, height)
+        self.enemy = Enemy(200, 200)
 
         # UI
         self.player_health_bar = player_Health_Bar(0, 0, self.player)
@@ -31,6 +32,7 @@ class CyberRush:
         self.ui_group = pygame.sprite.Group(
             self.player_health_bar, self.player_data_cubes
         )
+        self.enemy_group = pygame.sprite.Group(self.enemy)
 
         # Keybinds
         self.movement_keys = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
@@ -62,6 +64,7 @@ class CyberRush:
         self.player_group.update()
         self.data_cube_group.update()
         self.ui_group.update()
+        self.enemy_group.update()
 
     def draw(self):
         self.screen.fill((0, 0, 10))  # Keep at top of draw method
@@ -69,6 +72,7 @@ class CyberRush:
         # entities
         self.screen.blit(self.data_cube.sprite, self.data_cube.rect)
         self.screen.blit(self.player.sprite, self.player.rect)
+        self.screen.blit(self.enemy.sprite, self.enemy.rect)
 
         # UI
         self.screen.blit(self.player_health_bar.text, self.player_health_bar.rect)
@@ -98,7 +102,7 @@ class Player(Sprite):
         self.data_cubes_cooldown = 0
         self.data_cubes_cooldown_max = 20
 
-        # Movement
+        # Movement Animation
         self.direction = []
         if image:
             self.walking_up_sprites = []
@@ -259,6 +263,27 @@ class DataCube(Sprite):
         self.rect.top = max(self.rect.top, 0)
         if self.rect.bottom >= self.game_height:
             self.rect.bottom = self.game_height
+
+
+class Enemy(Sprite):
+    def __init__(self, x, y, image=False):
+        super().__init__()
+        if image:
+            self.sprite = pygame.image.load("assets/enemy.png")
+        else:
+            self.sprite = pygame.Surface((32, 32))
+            self.sprite.fill((255, 0, 0))
+
+        self.rect = self.sprite.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        self.display_info = pygame.display.Info()
+        self.game_width = self.display_info.current_w
+        self.game_height = self.display_info.current_h
+
+    def update(self):
+        pass
 
 
 if __name__ == "__main__":
