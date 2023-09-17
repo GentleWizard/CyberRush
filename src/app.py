@@ -12,7 +12,7 @@ class CyberRush:
     def __init__(self, width, height, title):
         # Pygame
         pygame.init()
-        self.screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF)
+        self.screen = pygame.display.set_mode((width, height), vsync=1)
         pygame.display.set_caption(title)
         self.clock = pygame.time.Clock()
         self.running = True
