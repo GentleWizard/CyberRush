@@ -50,8 +50,8 @@ class Player(Sprite):
     def movement(self):
         if len(self.direction) > 0:
             if self.dx != 0 and self.dy != 0:
-                self.dx /= sqrt(2)
-                self.dy /= sqrt(2)
+                self.dx /= 1.35
+                self.dy /= 1.35
             if pygame.K_w in self.direction and self.dy > -self.speed:
                 self.dy -= self.acceleration
             if pygame.K_s in self.direction and self.dy < self.speed:
