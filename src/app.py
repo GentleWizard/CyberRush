@@ -1,8 +1,6 @@
-import random
 import sys
 
 import pygame
-from pygame.sprite import Sprite
 
 from entities import DataCube, Enemy, Player
 from UI import player_Data_Cubes, player_Health_Bar
@@ -23,6 +21,7 @@ class CyberRush:
         # Entities
         self.player = Player(100, 100)
         self.data_cube = DataCube(width, height)
+        self.data_cube.randomise_position()
         self.enemy = Enemy(200, 200)
 
         # UI
@@ -50,6 +49,7 @@ class CyberRush:
             self.player.pickup_data_cube()
             self.data_cube = DataCube(self.width, self.height)
             self.data_cube_group.add(self.data_cube)
+            self.data_cube.randomise_position()
 
         if pygame.sprite.groupcollide(
             self.player_group, self.enemy_group, False, False
@@ -61,8 +61,7 @@ class CyberRush:
                 self.running = False
             if event.type == pygame.KEYDOWN:
                 if event.key in self.movement_keys:
-                    current_direction = {"key": event.key}
-                    self.player.direction.append(current_direction)
+                    self.player.direction.append(event.key)
 
                 if event.key == pygame.K_e:
                     self.player.health -= 10
@@ -73,7 +72,7 @@ class CyberRush:
             if event.type == pygame.KEYUP:
                 if event.key in self.movement_keys:
                     for direction in self.player.direction:
-                        if event.key == direction.get("key"):
+                        if event.key == direction:
                             self.player.direction.remove(direction)
 
     def update(self):
