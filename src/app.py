@@ -5,6 +5,7 @@ import pygame
 from entities.data_cube import DataCube
 from entities.enemy import Enemy
 from entities.player import Player
+from ui.button import Button
 from ui.text.data_cubes import PlayerDataCubes
 from ui.text.health import HealthBar
 
@@ -23,10 +24,58 @@ class GameState:
     def draw(self):
         pass
 
+    def switch_state(self, state):
+        self.game.current_state = self.game.game_state[state]
+
 
 class MenuState(GameState):
     def __init__(self, game):
         super().__init__(game)
+        center_x = self.screen.get_width() // 2
+        center_y = self.screen.get_height() // 2
+
+        self.play_button = Button(
+            x=center_x,
+            y=center_y - 100,
+            width=200,
+            height=40,
+            text="Play",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=lambda: self.switch_state("game"),
+        )
+
+        self.settings_button = Button(
+            x=center_x,
+            y=center_y - 50,
+            width=200,
+            height=40,
+            text="Settings",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=lambda: self.switch_state("settings"),
+        )
+
+        self.quit_button = Button(
+            x=center_x,
+            y=center_y,
+            width=200,
+            height=40,
+            text="Quit",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=sys.exit,
+        )
+
+        self.nav_button_group = pygame.sprite.Group(
+            self.play_button, self.settings_button, self.quit_button
+        )
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -35,7 +84,14 @@ class MenuState(GameState):
 
     def draw(self):
         self.game.screen.fill((0, 0, 10))
+
+        for button in self.nav_button_group:
+            button.draw(self.screen)
+
         pygame.display.flip()
+
+    def update(self):
+        self.nav_button_group.update()
 
 
 class PlayingState(GameState):
@@ -185,9 +241,6 @@ class CyberRush:
         pygame.display.set_caption(title)
         self.clock = pygame.time.Clock()
 
-        self.window_width = width
-        self.window_height = height
-
         # Game state
         self.game_state = {
             "menu": MenuState(self),
@@ -196,7 +249,7 @@ class CyberRush:
             "pause": PauseState(self),
             "game_over": GameOverState(self),
         }
-        self.current_state = self.game_state["game"]
+        self.current_state = self.game_state["menu"]
 
     def handle_events(self):
         self.current_state.handle_events()
@@ -208,7 +261,7 @@ class CyberRush:
         self.current_state.draw()
 
     def run(self):
-        while self.running:
+        while True:
             self.clock.tick(60)
             self.handle_events()
             self.update()

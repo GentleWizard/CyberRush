@@ -7,31 +7,36 @@ class Button(Sprite):
         self,
         x,
         y,
-        function,
+        function=lambda: print("Button pressed"),
         width=100,
         height=50,
         colour=(255, 255, 255),
+        hover_colour=(200, 200, 200),
+        font_hover_colour=(0, 0, 0),
         font_colour=(0, 0, 0),
+        font="Arial",
+        font_size=20,
         text="Button",
+        bold=False,
     ):
         super().__init__()
         self.width = width
         self.height = height
         self.colour = colour
-        self.text = text
+        self.content = text
         self.font_colour = font_colour
-        self.font = pygame.font.SysFont("Arial", 20)
+        self.font = pygame.font.SysFont(font, font_size, bold)
+        self.hover_colour = hover_colour
+        self.font_hover_colour = font_hover_colour
 
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill(self.colour)
 
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = x
+        self.rect.centerx = x
+        self.rect.centery = y
 
-        self.alive = True
-
-        self.text = self.font.render(self.text, True, self.font_colour)
+        self.text = self.font.render(self.content, True, self.font_colour)
         self.text_rect = self.text.get_rect()
         self.text_rect.center = self.rect.center
 
@@ -41,13 +46,10 @@ class Button(Sprite):
         self.function = function
 
     def update(self):
-        if self.alive == False:
-            return
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidelistall([pygame.Rect(mouse_pos, (1, 1))]):
-            self.image.fill(
-                (self.colour[0] - 40, self.colour[1] - 40, self.colour[2] - 40)
-            )
+            self.image.fill(self.hover_colour)
+            self.text = self.font.render(self.content, True, self.font_hover_colour)
             if pygame.mouse.get_pressed()[0]:
                 if pygame.mouse.get_pressed()[0]:
                     current_time = pygame.time.get_ticks()
@@ -56,16 +58,15 @@ class Button(Sprite):
                         self.function()
         else:
             self.image.fill(self.colour)
+            self.text = self.font.render(self.content, True, self.font_colour)
 
-    def blit(self, screen):
-        if self.alive == False:
-            return
+    def draw(self, screen):
         screen.blit(self.image, self.rect)
         screen.blit(self.text, self.text_rect)
 
     def set_text(self, text):
-        self.text = text
-        self.text = self.font.render(self.text, True, self.font_colour)
+        self.content = text
+        self.text = self.font.render(self.content, True, self.font_colour)
         self.text_rect = self.text.get_rect()
         self.text_rect.center = self.rect.center
 
@@ -75,13 +76,13 @@ class Button(Sprite):
 
     def set_font(self, font):
         self.font = font
-        self.text = self.font.render(self.text, True, self.font_colour)
+        self.text = self.font.render(self.content, True, self.font_colour)
         self.text_rect = self.text.get_rect()
         self.text_rect.center = self.rect.center
 
     def set_font_colour(self, font_colour):
         self.font_colour = font_colour
-        self.text = self.font.render(self.text, True, self.font_colour)
+        self.text = self.font.render(self.content, True, self.font_colour)
         self.text_rect = self.text.get_rect()
         self.text_rect.center = self.rect.center
 
