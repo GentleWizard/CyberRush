@@ -33,7 +33,7 @@ class HealthBar(Text):
         self.rect.x = self.player.rect.center[0] - (self.width // 1.5)
         self.rect.y = self.player.rect.center[1] - (self.height * 1.6)
 
-        if self.player.health < self.player.max_health and self.player.health > 0:
+        if self.player.health <= self.player.max_health:
             self.health_percentage = self.player.health / self.player.max_health
             self.health_colour = calculate_health_colour(self.health_percentage)
             self.image = self.font.render(self.content, True, self.health_colour)
