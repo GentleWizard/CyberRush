@@ -1,3 +1,4 @@
+import dataclasses
 import sys
 
 import pygame
@@ -7,17 +8,71 @@ from ui.text import HealthBar, PlayerDataCubes
 from ui.widgets import Button, Slider
 
 
+@dataclasses.dataclass
 class Settings:
     def __init__(self):
         self.volume = 0.5
         self.fullscreen = False
         self.resolution = (800, 600)
+        self.game_play_keybinds = {
+            "up": pygame.K_w,
+            "left": pygame.K_a,
+            "down": pygame.K_s,
+            "right": pygame.K_d,
+            "ability1": pygame.K_e,
+            "ability2": pygame.K_q,
+        }
+        self.menu_keybinds = {
+            "up": pygame.K_w,
+            "left": pygame.K_a,
+            "down": pygame.K_s,
+            "right": pygame.K_d,
+            "ability1": pygame.K_e,
+            "ability2": pygame.K_q,
+        }
+
+    def save(self):
+        pass
+
+    def load(self):
+        pass
+
+    def set_volume(self, volume):
+        self.volume = volume
+
+    def set_fullscreen(self, fullscreen):
+        self.fullscreen = fullscreen
+
+    def set_resolution(self, resolution):
+        self.resolution = resolution
+
+    def set_game_play_keybinds(self, key, bind):
+        self.game_play_keybinds[key] = bind
+
+    def set_menu_keybinds(self, key, bind):
+        self.menu_keybinds[key] = bind
+
+    def get_volume(self):
+        return self.volume
+
+    def get_fullscreen(self):
+        return self.fullscreen
+
+    def get_resolution(self):
+        return self.resolution
+
+    def get_game_play_keybinds(self):
+        return self.game_play_keybinds
+
+    def get_menu_keybinds(self):
+        return self.menu_keybinds
 
 
 class GameState:
     def __init__(self, game):
         self.screen = game.screen
         self.game = game
+        self.settings = game.settings
 
     def handle_events(self):
         pass
@@ -37,6 +92,7 @@ class GameState:
         pygame.time.delay(100)
 
     def new_game(self):
+        pygame.mouse.set_visible(False)
         self.game.game_state["game"] = PlayingState(self.game)
         self.game.current_state = self.game.game_state["game"]
 
@@ -149,8 +205,18 @@ class PlayingState(GameState):
         )
 
         # Keybinds
-        self.movement_keys = [pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d]
-        self.ability_keys = [pygame.K_e, pygame.K_q]
+        self.keybinds = self.settings.get_game_play_keybinds()
+
+        self.movement_keys = [
+            self.keybinds["up"],
+            self.keybinds["down"],
+            self.keybinds["left"],
+            self.keybinds["right"],
+        ]
+        self.ability_keys = [
+            self.keybinds["ability1"],
+            self.keybinds["ability2"],
+        ]
 
     def handle_events(self):
         if pygame.sprite.groupcollide(
@@ -217,22 +283,39 @@ class SettingsState(GameState):
         center_x = self.screen.get_width() // 2
         center_y = self.screen.get_height() // 2
 
-        self.resolution_slider = Slider(
+        self.sound_slider = Slider(
             x=center_x,
             y=center_y - 100,
-            width=20,
-            height=200,
+            width=200,
+            height=30,
             colour=(100, 175, 200),
             hover_colour=(150, 200, 225),
+            text=str(self.settings.get_volume()) * 100,
+            label="Volume",
+            label_bold=True,
+            label_colour=(255, 255, 255),
+            handle_size=15,
             handle_colour=(255, 255, 255),
-            handle_hover_colour=(200, 200, 200),
-            handle_radius=10,
-            border_radius=10,
         )
 
-        self.resolution_slider.function = lambda: self.change_resolution(
-            int(self.resolution_slider.get_value() * 800),
-            int(self.resolution_slider.get_value() * 600),
+        self.back_button = Button(
+            x=center_x,
+            y=center_y,
+            width=200,
+            height=40,
+            text="Back",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=lambda: self.switch_state("menu"),
+        )
+
+        self.nav_button_group = pygame.sprite.Group(
+            self.back_button,
+        )
+        self.slider_group = pygame.sprite.Group(
+            self.sound_slider,
         )
 
     def handle_events(self):
@@ -243,12 +326,16 @@ class SettingsState(GameState):
     def draw(self):
         self.game.screen.fill((0, 0, 10))
 
-        self.resolution_slider.draw(self.screen)
+        self.sound_slider.draw(self.screen)
+        self.back_button.draw(self.screen)
 
         pygame.display.flip()
 
     def update(self):
-        self.resolution_slider.update()
+        self.nav_button_group.update()
+        self.slider_group.update()
+        self.settings.set_volume(self.sound_slider.get_value())
+        self.sound_slider.set_text(str(self.settings.get_volume()) * 100)
 
 
 class PauseState(GameState):
@@ -339,6 +426,8 @@ class CyberRush:
         self.screen = pygame.display.set_mode((width, height), vsync=1)
         pygame.display.set_caption(title)
         self.clock = pygame.time.Clock()
+
+        self.settings = Settings()
 
         self.game_state = {
             "menu": MenuState(self),

@@ -12,19 +12,54 @@ class Slider(Sprite):
         colour=(255, 255, 255),
         hover_colour=(200, 200, 200),
         handle_colour=(0, 0, 0),
-        handle_radius=10,
+        handle_size=10,
         handle_hover_colour=(100, 100, 100),
         border_radius=10,
+        label="",
+        label_font="Arial",
+        label_size=20,
+        label_bold=False,
+        label_colour=(0, 0, 0),
+        text="",
+        text_font="Arial",
+        text_size=20,
+        text_bold=False,
+        text_colour=(0, 0, 0),
     ):
         super().__init__()
         self.width = width
         self.height = height
         self.colour = colour
+
         self.hover_colour = hover_colour
         self.handle_colour = handle_colour
-        self.handle_radius = handle_radius
+        self.handle_radius = handle_size
         self.handle_hover_colour = handle_hover_colour
         self.border_radius = border_radius
+
+        self.label = label
+        self.label_font_set = label_font
+        self.label_font_size = label_size
+        self.label_font_bold = label_bold
+        self.label_font_colour = label_colour
+        self.label_font = pygame.font.SysFont(
+            self.label_font_set, self.label_font_size, self.label_font_bold
+        )
+        self.font_surface = self.label_font.render(
+            self.label, True, self.label_font_colour
+        )
+
+        self.text = text
+        self.text_font_set = text_font
+        self.text_font_size = text_size
+        self.text_font_bold = text_bold
+        self.text_font_colour = text_colour
+        self.text_font = pygame.font.SysFont(
+            self.text_font_set, self.text_font_size, self.text_font_bold
+        )
+        self.text_surface = self.text_font.render(
+            self.text, True, self.text_font_colour
+        )
 
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill(self.colour)
@@ -68,6 +103,7 @@ class Slider(Sprite):
 
     def draw(self, screen):
         mouse_pos = pygame.mouse.get_pos()
+
         # Draw the track of the slider with rounded corners
         if self.width < self.height:
             if self.rect.collidepoint(mouse_pos):
@@ -135,6 +171,30 @@ class Slider(Sprite):
                 self.handle_radius * 2,
             )
 
+        if self.width > self.height:
+            label_surface = self.label_font.render(
+                self.label, True, self.label_font_colour
+            )
+            label_rect = label_surface.get_rect()
+            label_rect.centerx = self.rect.centerx
+            label_rect.bottom = self.rect.top - self.label_font_size
+        else:
+            label_surface = self.label_font.render(
+                self.label, True, self.label_font_colour
+            )
+            label_rect = label_surface.get_rect()
+            label_rect.centerx = self.rect.centerx
+            label_rect.top = self.rect.top - self.label_font_size
+
+        screen.blit(label_surface, label_rect)
+
+        text_surface = self.text_font.render(self.text, True, self.text_font_colour)
+        text_rect = text_surface.get_rect()
+        text_rect.centerx = self.rect.centerx
+        text_rect.centery = self.rect.centery
+
+        screen.blit(text_surface, text_rect)
+
         # Draw the handle of the slider
         if self.width < self.height:
             if self.handle_rect.collidepoint(mouse_pos):
@@ -169,15 +229,28 @@ class Slider(Sprite):
 
     def get_value(self, invert=False):
         if self.width < self.height:
-            return (
-                1 - (self.handle_pos - self.rect.top) / self.height
-                if invert
-                else (self.handle_pos - self.rect.top) / self.height
+            slider_length = self.height - 2 * (self.border_radius + self.handle_radius)
+            handle_pos = (
+                self.handle_pos
+                - self.rect.top
+                - self.border_radius
+                - self.handle_radius
             )
-        if invert:
-            return 1 - (self.handle_pos - self.rect.left) / self.width
         else:
-            return (self.handle_pos - self.rect.left) / self.width
+            slider_length = self.width - 2 * (self.border_radius + self.handle_radius)
+            handle_pos = (
+                self.handle_pos
+                - self.rect.left
+                - self.border_radius
+                - self.handle_radius
+            )
+
+        value = handle_pos / slider_length
+
+        if invert:
+            value = 1 - value
+
+        return int(value * 100)
 
     def __clamp(self):
         if self.width < self.height:
@@ -188,6 +261,12 @@ class Slider(Sprite):
             max_handle_pos = self.rect.right - self.handle_radius - self.border_radius
 
         self.handle_pos = max(min_handle_pos, min(self.handle_pos, max_handle_pos))
+
+    def set_text(self, text):
+        self.text = text
+        self.text_surface = self.text_font.render(
+            self.text, True, self.text_font_colour
+        )
 
 
 class Button(Sprite):
