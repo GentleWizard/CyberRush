@@ -2,9 +2,7 @@ import sys
 
 import pygame
 
-from entities.data_cube import DataCube
-from entities.enemy import Enemy
-from entities.player import Player
+from entity import DataCube, Enemy, Player
 from ui.text import HealthBar, PlayerDataCubes
 from ui.widgets import Button, Slider
 
@@ -222,11 +220,14 @@ class SettingsState(GameState):
         self.resolution_slider = Slider(
             x=center_x,
             y=center_y - 100,
-            width=200,
-            height=20,
+            width=20,
+            height=200,
             colour=(100, 175, 200),
             hover_colour=(150, 200, 225),
-            handle_colour=(0, 0, 0),
+            handle_colour=(255, 255, 255),
+            handle_hover_colour=(200, 200, 200),
+            handle_radius=10,
+            border_radius=10,
         )
 
         self.resolution_slider.function = lambda: self.change_resolution(

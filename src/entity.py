@@ -1,6 +1,28 @@
-import pygame
+import random
 
-from .entity import Entity
+import pygame
+from pygame.sprite import Sprite
+
+
+class Entity(Sprite):
+    def __init__(self, x, y, colour=(255, 255, 255)):
+        super().__init__()
+        self.image = pygame.Surface((32, 32))
+        self.image.fill(colour)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        self.display_info = pygame.display.Info()
+        self.game_width = self.display_info.current_w
+        self.game_height = self.display_info.current_h
+
+    def update(self):
+        pass
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 
 
 class Player(Entity):
@@ -88,3 +110,36 @@ class Player(Entity):
             return
         self.data_cubes += 1
         self.data_cubes_cooldown = self.data_cubes_cooldown_max
+
+
+class Enemy(Entity):
+    def __init__(self, x, y, colour=(255, 0, 0)):
+        super().__init__(x, y, colour)
+
+        self.hitdelay = 0
+        self.damage = 10
+        self.speed = 3
+
+    def update(self):
+        if self.hitdelay > 0:
+            self.hitdelay -= 1
+
+        self.ai()
+
+    def attack(self, player):
+        if self.hitdelay > 0:
+            return
+        player.health -= self.damage + player.data_cubes
+        self.hitdelay = 65
+
+    def ai(self):
+        pass
+
+
+class DataCube(Entity):
+    def __init__(self, colour=(0, 255, 0), x=0, y=0):
+        super().__init__(x, y, colour)
+
+    def randomise_position(self):
+        self.rect.x = random.randint(50, self.game_width - 50)
+        self.rect.y = random.randint(50, self.game_height - 50)

@@ -13,6 +13,8 @@ class Slider(Sprite):
         hover_colour=(200, 200, 200),
         handle_colour=(0, 0, 0),
         handle_radius=10,
+        handle_hover_colour=(100, 100, 100),
+        border_radius=10,
     ):
         super().__init__()
         self.width = width
@@ -21,6 +23,8 @@ class Slider(Sprite):
         self.hover_colour = hover_colour
         self.handle_colour = handle_colour
         self.handle_radius = handle_radius
+        self.handle_hover_colour = handle_hover_colour
+        self.border_radius = border_radius
 
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill(self.colour)
@@ -38,6 +42,13 @@ class Slider(Sprite):
         self.handle_width = self.handle_radius * 2
         self.handle_height = self.handle_radius * 2
 
+        self.handle_rect = pygame.Rect(
+            self.rect.centerx - self.handle_radius,
+            self.rect.centery - self.handle_radius,
+            self.handle_width,
+            self.handle_height,
+        )
+
     def update(self):
         mouse_pos = pygame.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
@@ -53,59 +64,108 @@ class Slider(Sprite):
                 self.dragging = False
 
         # Clamp the handle position within the slider
-        if self.width < self.height:
-            self.handle_pos = max(
-                self.rect.top + self.handle_height,
-                min(self.handle_pos, self.rect.bottom - self.handle_height),
-            )
-        else:
-            self.handle_pos = max(
-                self.rect.left + self.handle_width,
-                min(self.handle_pos, self.rect.right - self.handle_width),
-            )
+        self.__clamp()
 
     def draw(self, screen):
+        mouse_pos = pygame.mouse.get_pos()
         # Draw the track of the slider with rounded corners
         if self.width < self.height:
-            pygame.draw.rect(
-                screen,
-                self.colour,
-                pygame.Rect(
-                    self.rect.left,
-                    self.rect.top + self.handle_radius,
-                    self.width,
-                    self.height - 2 * self.handle_radius,
-                ),
-                border_radius=self.handle_radius,
+            if self.rect.collidepoint(mouse_pos):
+                pygame.draw.rect(
+                    screen,
+                    self.hover_colour,
+                    pygame.Rect(
+                        self.rect.left,
+                        self.rect.top + self.border_radius,
+                        self.width,
+                        self.height - 2 * self.border_radius,
+                    ),
+                    border_radius=self.border_radius,
+                )
+            else:
+                pygame.draw.rect(
+                    screen,
+                    self.colour,
+                    pygame.Rect(
+                        self.rect.left,
+                        self.rect.top + self.border_radius,
+                        self.width,
+                        self.height - 2 * self.border_radius,
+                    ),
+                    border_radius=self.border_radius,
+                )
+        else:
+            if self.rect.collidepoint(mouse_pos):
+                pygame.draw.rect(
+                    screen,
+                    self.hover_colour,
+                    pygame.Rect(
+                        self.rect.left + self.border_radius,
+                        self.rect.top,
+                        self.width - 2 * self.border_radius,
+                        self.height,
+                    ),
+                    border_radius=self.border_radius,
+                )
+            else:
+                pygame.draw.rect(
+                    screen,
+                    self.colour,
+                    pygame.Rect(
+                        self.rect.left + self.border_radius,
+                        self.rect.top,
+                        self.width - 2 * self.border_radius,
+                        self.height,
+                    ),
+                    border_radius=self.border_radius,
+                )
+
+        if self.width < self.height:
+            self.handle_rect = pygame.Rect(
+                self.rect.centerx - self.handle_radius,
+                self.handle_pos - self.handle_radius,
+                self.handle_radius * 2,
+                self.handle_radius * 2,
             )
         else:
-            pygame.draw.rect(
-                screen,
-                self.colour,
-                pygame.Rect(
-                    self.rect.left + self.handle_radius,
-                    self.rect.top,
-                    self.width - 2 * self.handle_radius,
-                    self.height,
-                ),
-                border_radius=self.handle_radius,
+            self.handle_rect = pygame.Rect(
+                self.handle_pos - self.handle_radius,
+                self.rect.centery - self.handle_radius,
+                self.handle_radius * 2,
+                self.handle_radius * 2,
             )
 
         # Draw the handle of the slider
         if self.width < self.height:
-            pygame.draw.circle(
-                screen,
-                self.handle_colour,
-                (self.rect.centerx, self.handle_pos),
-                self.handle_radius,
-            )
+            if self.handle_rect.collidepoint(mouse_pos):
+                pygame.draw.circle(
+                    screen,
+                    self.handle_hover_colour,
+                    (self.rect.centerx, self.handle_pos),
+                    self.handle_radius,
+                )
+            else:
+                pygame.draw.circle(
+                    screen,
+                    self.handle_colour,
+                    (self.rect.centerx, self.handle_pos),
+                    self.handle_radius,
+                )
         else:
-            pygame.draw.circle(
-                screen,
-                self.handle_colour,
-                (self.handle_pos, self.rect.centery),
-                self.handle_radius,
-            )
+            if self.handle_rect.collidepoint(mouse_pos):
+                pygame.draw.circle(
+                    screen,
+                    self.handle_hover_colour,
+                    (self.handle_pos, self.rect.centery),
+                    self.handle_radius,
+                )
+            else:
+                pygame.draw.circle(
+                    screen,
+                    self.handle_colour,
+                    (self.handle_pos, self.rect.centery),
+                    self.handle_radius,
+                )
 
     def get_value(self, invert=False):
         if self.width < self.height:
@@ -118,6 +178,16 @@ class Slider(Sprite):
             return 1 - (self.handle_pos - self.rect.left) / self.width
         else:
             return (self.handle_pos - self.rect.left) / self.width
+
+    def __clamp(self):
+        if self.width < self.height:
+            min_handle_pos = self.rect.top + self.handle_radius + self.border_radius
+            max_handle_pos = self.rect.bottom - self.handle_radius - self.border_radius
+        else:
+            min_handle_pos = self.rect.left + self.handle_radius + self.border_radius
+            max_handle_pos = self.rect.right - self.handle_radius - self.border_radius
+
+        self.handle_pos = max(min_handle_pos, min(self.handle_pos, max_handle_pos))
 
 
 class Button(Sprite):
