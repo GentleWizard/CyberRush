@@ -5,9 +5,15 @@ import pygame
 from entities.data_cube import DataCube
 from entities.enemy import Enemy
 from entities.player import Player
-from ui.button import Button
-from ui.text.data_cubes import PlayerDataCubes
-from ui.text.health import HealthBar
+from ui.text import HealthBar, PlayerDataCubes
+from ui.widgets import Button, Slider
+
+
+class Settings:
+    def __init__(self):
+        self.volume = 0.5
+        self.fullscreen = False
+        self.resolution = (800, 600)
 
 
 class GameState:
@@ -25,7 +31,20 @@ class GameState:
         pass
 
     def switch_state(self, state):
+        if state == "game":
+            pygame.mouse.set_visible(False)
+        else:
+            pygame.mouse.set_visible(True)
         self.game.current_state = self.game.game_state[state]
+        pygame.time.delay(100)
+
+    def new_game(self):
+        self.game.game_state["game"] = PlayingState(self.game)
+        self.game.current_state = self.game.game_state["game"]
+
+    def change_resolution(self, width, height):
+        self.game.screen = pygame.display.set_mode((width, height), vsync=1)
+        self.screen = self.game.screen
 
 
 class MenuState(GameState):
@@ -44,7 +63,7 @@ class MenuState(GameState):
             bold=True,
             colour=(100, 175, 200),
             hover_colour=(150, 200, 225),
-            function=lambda: self.switch_state("game"),
+            function=lambda: self.new_game(),
         )
 
         self.settings_button = Button(
@@ -60,12 +79,12 @@ class MenuState(GameState):
             function=lambda: self.switch_state("settings"),
         )
 
-        self.quit_button = Button(
+        self.exit_button = Button(
             x=center_x,
             y=center_y,
             width=200,
             height=40,
-            text="Quit",
+            text="Exit",
             font_size=30,
             bold=True,
             colour=(100, 175, 200),
@@ -74,7 +93,7 @@ class MenuState(GameState):
         )
 
         self.nav_button_group = pygame.sprite.Group(
-            self.play_button, self.settings_button, self.quit_button
+            self.play_button, self.settings_button, self.exit_button
         )
 
     def handle_events(self):
@@ -108,7 +127,7 @@ class PlayingState(GameState):
         self.player_health_bar = HealthBar(
             self.player.rect.center[0], (self.player.rect.center[1] - 10), self.player
         )
-        self.player_data_cubes = PlayerDataCubes(0, 20, self.player)
+        self.player_data_cubes = PlayerDataCubes(0, 0, self.player)
 
         # Groups
         self.player_group = pygame.sprite.GroupSingle(self.player)
@@ -167,6 +186,9 @@ class PlayingState(GameState):
                     self.player.health += 10
                     print(self.player.health)
 
+                if event.key == pygame.K_ESCAPE:
+                    self.switch_state("pause")
+
             if event.type == pygame.KEYUP:
                 if event.key in self.movement_keys:
                     for direction in self.player.direction:
@@ -194,6 +216,23 @@ class PlayingState(GameState):
 class SettingsState(GameState):
     def __init__(self, game):
         super().__init__(game)
+        center_x = self.screen.get_width() // 2
+        center_y = self.screen.get_height() // 2
+
+        self.resolution_slider = Slider(
+            x=center_x,
+            y=center_y - 100,
+            width=200,
+            height=20,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            handle_colour=(0, 0, 0),
+        )
+
+        self.resolution_slider.function = lambda: self.change_resolution(
+            int(self.resolution_slider.get_value() * 800),
+            int(self.resolution_slider.get_value() * 600),
+        )
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -202,12 +241,63 @@ class SettingsState(GameState):
 
     def draw(self):
         self.game.screen.fill((0, 0, 10))
+
+        self.resolution_slider.draw(self.screen)
+
         pygame.display.flip()
+
+    def update(self):
+        self.resolution_slider.update()
 
 
 class PauseState(GameState):
     def __init__(self, game):
         super().__init__(game)
+        center_x = self.screen.get_width() // 2
+        center_y = self.screen.get_height() // 2
+
+        self.resume_button = Button(
+            x=center_x,
+            y=center_y - 100,
+            width=200,
+            height=40,
+            text="Resume",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=lambda: self.switch_state("game"),
+        )
+
+        self.restart_button = Button(
+            x=center_x,
+            y=center_y - 50,
+            width=200,
+            height=40,
+            text="Restart",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=lambda: self.new_game(),
+        )
+
+        self.quit_button = Button(
+            x=center_x,
+            y=center_y,
+            width=200,
+            height=40,
+            text="Quit",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=lambda: self.switch_state("menu"),
+        )
+
+        self.nav_button_group = pygame.sprite.Group(
+            self.resume_button, self.quit_button, self.restart_button
+        )
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -216,7 +306,14 @@ class PauseState(GameState):
 
     def draw(self):
         self.game.screen.fill((0, 0, 10))
+
+        for button in self.nav_button_group:
+            button.draw(self.screen)
+
         pygame.display.flip()
+
+    def update(self):
+        self.nav_button_group.update()
 
 
 class GameOverState(GameState):
@@ -237,11 +334,11 @@ class CyberRush:
     def __init__(self, width, height, title):
         # Pygame
         pygame.init()
+        # Game state
         self.screen = pygame.display.set_mode((width, height), vsync=1)
         pygame.display.set_caption(title)
         self.clock = pygame.time.Clock()
 
-        # Game state
         self.game_state = {
             "menu": MenuState(self),
             "game": PlayingState(self),
@@ -266,8 +363,6 @@ class CyberRush:
             self.handle_events()
             self.update()
             self.draw()
-
-        sys.exit()
 
 
 if __name__ == "__main__":
