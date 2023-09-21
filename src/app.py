@@ -41,6 +41,7 @@ class Settings:
         self.volume = volume
 
     def set_fullscreen(self, fullscreen):
+        pygame.time.delay(500)
         self.fullscreen = fullscreen
 
     def set_resolution(self, resolution):
@@ -89,9 +90,10 @@ class GameState:
         else:
             pygame.mouse.set_visible(True)
         self.game.current_state = self.game.game_state[state]
-        pygame.time.delay(100)
+        pygame.time.delay(200)
 
     def new_game(self):
+        pygame.time.delay(200)
         pygame.mouse.set_visible(False)
         self.game.game_state["game"] = PlayingState(self.game)
         self.game.current_state = self.game.game_state["game"]
@@ -290,12 +292,24 @@ class SettingsState(GameState):
             height=30,
             colour=(100, 175, 200),
             hover_colour=(150, 200, 225),
-            text=str(self.settings.get_volume()) * 100,
             label="Volume",
             label_bold=True,
             label_colour=(255, 255, 255),
             handle_size=15,
             handle_colour=(255, 255, 255),
+        )
+
+        self.fullscreen_button = Button(
+            x=center_x,
+            y=center_y - 50,
+            width=200,
+            height=40,
+            text="Fullscreen",
+            font_size=30,
+            bold=True,
+            colour=(100, 175, 200),
+            hover_colour=(150, 200, 225),
+            function=lambda: self.game.toggle_fullscreen(),
         )
 
         self.back_button = Button(
@@ -312,7 +326,7 @@ class SettingsState(GameState):
         )
 
         self.nav_button_group = pygame.sprite.Group(
-            self.back_button,
+            self.back_button, self.fullscreen_button
         )
         self.slider_group = pygame.sprite.Group(
             self.sound_slider,
@@ -328,6 +342,7 @@ class SettingsState(GameState):
 
         self.sound_slider.draw(self.screen)
         self.back_button.draw(self.screen)
+        self.fullscreen_button.draw(self.screen)
 
         pygame.display.flip()
 
@@ -443,6 +458,16 @@ class CyberRush:
 
     def update(self):
         self.current_state.update()
+
+    def toggle_fullscreen(self):
+        if self.settings.get_fullscreen() is False:
+            pygame.display.set_mode(
+                self.settings.get_resolution(), pygame.FULLSCREEN | pygame.HWSURFACE
+            )
+            self.settings.set_fullscreen(True)
+        else:
+            pygame.display.set_mode(self.settings.get_resolution())
+            self.settings.set_fullscreen(False)
 
     def draw(self):
         self.current_state.draw()
