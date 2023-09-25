@@ -3,8 +3,8 @@ import pickle
 
 import pygame
 
-from States.playing import PlayingState
-from States.ui.button import Button
+from src.States.playing import PlayingState
+from src.States.ui.button import Button
 
 
 class LoadState:

@@ -1,6 +1,6 @@
 {
     "volume": 72,
-    "fullscreen": true,
+    "fullscreen": false,
     "vsync": true,
     "fps_cap": 60,
     "width": 1280,
