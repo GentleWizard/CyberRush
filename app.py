@@ -9,7 +9,6 @@ from States.main_menu import MainMenuState
 from States.options import OptionsState
 from States.paused import PausedState
 
-print("Hello World!")
 
 class Game:
     def __init__(self):
