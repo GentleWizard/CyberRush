@@ -4,7 +4,7 @@ from typing import Literal, Sequence, IO
 import pygame
 from pygame import Color
 
-from src.States.ui.ui import UiElement
+from States.ui.ui import UiElement
 
 
 class FontTypeHinting:

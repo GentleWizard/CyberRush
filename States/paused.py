@@ -1,6 +1,6 @@
 import pygame
 
-from src.States.ui.button import Button
+from .ui.button import Button
 
 
 class PausedState:

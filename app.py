@@ -2,12 +2,12 @@ import sys
 
 import pygame
 
+from options import Settings
 from States.game_over import GameOverState
 from States.load import LoadState
 from States.main_menu import MainMenuState
 from States.options import OptionsState
 from States.paused import PausedState
-from options import Settings
 
 
 class Game:
