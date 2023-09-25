@@ -1,0 +1,11 @@
+{
+    "volume": 72,
+    "fullscreen": true,
+    "vsync": true,
+    "fps_cap": 60,
+    "width": 1280,
+    "height": 720,
+    "font": null,
+    "allow_screensaver": false,
+    "title": "Game"
+}
