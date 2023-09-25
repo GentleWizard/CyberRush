@@ -64,7 +64,9 @@ class Button(UiElement):
             if self.unhover_event(global_change=True, hover_rect=self.rect):
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
+        self.text.update_font(size=self.height // 2)
         self.text.update(dt)
+        
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)

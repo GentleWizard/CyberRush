@@ -9,7 +9,6 @@ from States.main_menu import MainMenuState
 from States.options import OptionsState
 from States.paused import PausedState
 
-
 class Game:
     def __init__(self):
         pygame.init()
@@ -21,23 +20,29 @@ class Game:
         self.height = self.settings.get_height()
 
         self.resolution = (self.width, self.height)
+        
+        info = pygame.display.Info()
+        self.screen_res = (info.current_w, info.current_h)
+        self.settings.set_height(info.current_h)
+        self.settings.set_width(info.current_w)
 
         if self.settings.get_fullscreen():
             self.flags = (
                 pygame.HWACCEL | pygame.HWSURFACE | pygame.FULLSCREEN | pygame.NOFRAME
             )
+            self.screen = pygame.display.set_mode(
+                (self.settings.get_width(), self.settings.get_height()), self.flags
+            )
         else:
             self.flags = pygame.HWACCEL | pygame.HWSURFACE | pygame.NOFRAME
-
-        self.screen = pygame.display.set_mode(
-            (self.settings.get_width(), self.settings.get_height()), self.flags
-        )
+            self.screen = pygame.display.set_mode(
+                (self.settings.get_width() //2 , self.settings.get_height() //2), self.flags
+            )
 
         pygame.display.set_caption(self.settings.get_title())
         pygame.display.set_allow_screensaver(self.settings.allow_screensaver())
+        
 
-        info = pygame.display.Info()
-        self.screen_res = (info.current_w, info.current_h)
 
         self.font = "Assets/Fonts/Roboto-Regular.ttf"
 
@@ -107,9 +112,13 @@ class Game:
         pygame.display.flip()
 
     def change_state(self, state):
-        pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+        self.change_cursor(pygame.SYSTEM_CURSOR_ARROW)
         self.previous_state = self.current_state
         if state != self.current_state and state in self.states.values():
+            if state == self.states.get("playing"):
+                pygame.mouse.set_visible(False)
+            else:
+                pygame.mouse.set_visible(True)
             self.current_state = state
 
     def change_cursor(self, cursor):

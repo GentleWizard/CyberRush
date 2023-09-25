@@ -21,7 +21,7 @@ class PausedState:
 
         self.save_button = Button(
             x=self.game.width // 2,
-            y=self.resume_button.rect.bottom + 50,
+            y=self.resume_button.rect.bottom + self.resume_button.height // 1.5,
             width=self.resume_button.width,
             height=self.resume_button.height,
             text="Save",
@@ -33,7 +33,7 @@ class PausedState:
 
         self.settings_button = Button(
             x=self.game.width // 2,
-            y=self.resume_button.rect.bottom + 50,
+            y=self.resume_button.rect.bottom + self.resume_button.height // 1.5,
             width=self.resume_button.width,
             height=self.resume_button.height,
             text="Settings",
@@ -45,7 +45,7 @@ class PausedState:
 
         self.quit_button = Button(
             x=self.game.width // 2,
-            y=self.settings_button.rect.bottom + 50,
+            y=self.settings_button.rect.bottom + self.settings_button.height // 1.5,
             width=self.settings_button.width,
             height=self.settings_button.height,
             text="Quit",
@@ -94,29 +94,29 @@ class PausedState:
         if self.save_button.click_event(rect=self.save_button.rect):
             self.game.states.get("playing").save_game(autosave=False)
 
-    def handle_gui(self, vert_separation=50):
+    def handle_gui(self):
         self.resume_button.update_button(
             x=self.game.width // 2,
-            y=self.game.height // 2 - 100,
+            y=self.game.height // 2 // 2,
             width=self.game.width // 2,
             height=self.game.height // 10,
         )
         self.save_button.update_button(
             x=self.game.width // 2,
-            y=self.resume_button.rect.bottom + vert_separation,
+            y=self.resume_button.rect.bottom + self.resume_button.height // 1.5,
             width=self.resume_button.width,
             height=self.resume_button.height,
         )
 
         self.settings_button.update_button(
             x=self.game.width // 2,
-            y=self.save_button.rect.bottom + vert_separation,
+            y=self.save_button.rect.bottom + self.save_button.height // 1.5,
             width=self.resume_button.width,
             height=self.resume_button.height,
         )
         self.quit_button.update_button(
             x=self.game.width // 2,
-            y=self.settings_button.rect.bottom + vert_separation,
+            y=self.settings_button.rect.bottom + self.settings_button.height // 1.5,
             width=self.resume_button.width,
             height=self.resume_button.height,
         )
