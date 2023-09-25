@@ -12,7 +12,7 @@ class OptionsState:
         self.menu_elements = pygame.sprite.Group()
 
         self.back_button = Button(
-            y=self.game.height // 1.2,
+            y=self.game.height // 2 // 2.5,
             text="Back",
             text_color=(0, 0, 0),
             bg_color=(255, 255, 255),
@@ -21,7 +21,7 @@ class OptionsState:
         )
 
         self.fullscreen_button = Button(
-            y=self.back_button.rect.top - 100,
+            y=self.game.height // 2 // 2,
             text="Play Fullscreen",
             text_color=(0, 0, 0),
             bg_color=(255, 255, 255),
@@ -31,7 +31,7 @@ class OptionsState:
 
         self.volume = Slider(
             x=self.game.width // 2,
-            y=self.fullscreen_button.rect.top - 100,
+            y=self.fullscreen_button.rect.top - self.fullscreen_button.height // 1.5,
             width=self.game.width // 2,
             height=50,
             label="Volume",
@@ -76,14 +76,16 @@ class OptionsState:
                 self.game.change_state(self.game.previous_state)
 
         if self.fullscreen_button.click_event(rect=self.fullscreen_button.rect):
+            self.monitor_info = (self.game.settings.get_width(), self.game.settings.get_height())
+            
             if not pygame.display.is_fullscreen():
                 pygame.display.set_mode(
-                    (1280, 720), self.game.screen.get_flags() | pygame.FULLSCREEN
+                    (self.monitor_info), self.game.screen.get_flags() | pygame.FULLSCREEN
                 )
                 self.game.settings.set_fullscreen(True)
             else:
                 pygame.display.set_mode(
-                    self.game.resolution,
+                    (self.monitor_info[0]//2, self.monitor_info[1]//2),
                     self.game.screen.get_flags() & ~pygame.FULLSCREEN,
                 )
                 self.game.settings.set_fullscreen(False)
@@ -91,21 +93,22 @@ class OptionsState:
     def handle_gui(self):
         self.back_button.update_button(
             x=self.game.width // 2,
-            y=self.game.height - 100,
+            y=self.game.height // 2 * 1.8,
             width=self.game.width // 2,
             height=self.game.height // 10,
         )
         self.fullscreen_button.update_button(
             x=self.game.width // 2,
-            y=self.back_button.rect.top - 100,
+            y=self.game.height // 2,
             width=self.back_button.width,
             height=self.back_button.height,
+            text=f"Play {'Windowed' if not pygame.display.is_fullscreen() else 'Fullscreen'}",
         )
         self.volume.update_slider(
             x=self.game.width // 2,
-            y=self.fullscreen_button.rect.top - 100,
+            y=self.fullscreen_button.rect.top - self.fullscreen_button.height // 1.5,
             width=self.game.width // 2,
-            height=50,
+            height=self.fullscreen_button.height,
             inner_text=f"Volume: {self.volume.value}%",
         )
 
