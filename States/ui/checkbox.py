@@ -2,7 +2,7 @@ import pygame
 
 from .ui import UiElement
 
-
+# TODO make the checkbox class work with the text class
 class Checkbox(UiElement):
     def __init__(
         self,

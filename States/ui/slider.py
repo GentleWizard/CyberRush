@@ -112,6 +112,8 @@ class Slider(UiElement):
             self.slider_rect.left = max(self.rect.left, self.slider_rect.left)
             self.slider_rect.right = min(self.rect.right, self.slider_rect.right)
 
+
+
     def draw(self, screen):
         screen.blit(self.track, self.rect)
         screen.blit(self.slider, self.slider_rect)
@@ -131,48 +133,8 @@ class Slider(UiElement):
             self.inner_text.set_alpha(255)
             self.label.set_alpha(255)
 
+    # FIXME: Fix this method
     def update_slider(
         self,
-        x: int = None,
-        y: int = None,
-        width: int = None,
-        height: int = None,
-        track_color: tuple[int, int, int] = None,
-        slider_color: tuple[int, int, int] = None,
-        slider_size: tuple[int, int] = None,
-        inner_text: str = None,
-        label_text: str = None,
-        label_color: tuple[int, int, int] = None,
     ):
-        self.width = width if width else self.width
-        self.height = height if height else self.height
-        self.x = x if x else self.x
-        self.y = y if y else self.y
-        self.track_color = track_color if track_color else self.track_color
-        self.slider_color = slider_color if slider_color else self.slider_color
-        self.slider_width, self.slider_height = (
-            slider_size if slider_size else (self.slider_width, self.slider_height)
-        )
-        self.inner_text.update_text(
-            text=inner_text if inner_text else self.inner_text.text,
-        )
-        self.label.update_text(
-            text=label_text if label_text else self.label.text,
-            font_color=label_color if label_color else self.label.text_color,
-        )
-
-        self.track = pygame.Surface((self.width, self.height))
-        self.track.fill(self.track_color)
-        self.rect = self.track.get_rect(center=(self.x, self.y))
-
-        self.slider = pygame.Surface((self.slider_width, self.slider_height))
-        self.slider.fill(self.slider_color)
-        self.slider_rect = self.slider.get_rect(center=self.rect.center)
-
-        self.slider_rect.centerx = self.rect.x + (
-            self.value / self.max_value * self.width
-        )
-
-        self.inner_text.rect.center = self.rect.center
-        self.label.rect.centerx = self.rect.centerx
-        self.label.rect.bottom = self.rect.bottom - self.rect.height * 1.5
+        pass

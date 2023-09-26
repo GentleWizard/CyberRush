@@ -1,10 +1,10 @@
 {
-    "volume": 16,
-    "fullscreen": false,
+    "volume": 100,
+    "fullscreen": true,
     "vsync": true,
     "fps_cap": 60,
-    "width": 1280,
-    "height": 720,
+    "width": 1475,
+    "height": 829,
     "font": null,
     "allow_screensaver": false,
     "title": "Game"

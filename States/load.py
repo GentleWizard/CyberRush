@@ -43,6 +43,7 @@ class LoadState:
         self.menu_elements.update(dt)
         self.saves_group.update(dt)
 
+
         self.handle_gui()
 
     def render(self, screen):
@@ -108,3 +109,4 @@ class LoadState:
             width=self.game.width // 2,
             height=self.game.height // 10,
         )
+

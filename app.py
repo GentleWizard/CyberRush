@@ -9,6 +9,8 @@ from States.main_menu import MainMenuState
 from States.options import OptionsState
 from States.paused import PausedState
 
+# TODO: Look at Docs for usful functions
+
 class Game:
     def __init__(self):
         pygame.init()

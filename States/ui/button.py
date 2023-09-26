@@ -6,17 +6,17 @@ from .ui import UiElement
 
 class Button(UiElement):
     def __init__(
-        self,
-        game,
-        x=None,
-        y=None,
-        width=None,
-        height=None,
-        text=None,
-        font=None,
-        text_color=(0, 0, 0),
-        bg_color=(255, 255, 255),
-        font_size=None,
+            self,
+            game,
+            x=None,
+            y=None,
+            width=None,
+            height=None,
+            text=None,
+            font=None,
+            text_color=(0, 0, 0),
+            bg_color=(255, 255, 255),
+            font_size=None,
     ):
         super().__init__(x, y, width, height, game)
         self.x = x if x else self.game.width // 2
@@ -66,23 +66,22 @@ class Button(UiElement):
 
         self.text.update_font(size=self.height // 2)
         self.text.update(dt)
-        
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
         self.text.draw(screen)
 
     def update_button(
-        self,
-        x: int = None,
-        y: int = None,
-        width: int = None,
-        height: int = None,
-        bg_color: tuple[int, int, int] = None,
-        text: str = None,
-        font: str = None,
-        font_color: tuple[int, int, int] = None,
-        font_size: int = None,
+            self,
+            x: int = None,
+            y: int = None,
+            width: int = None,
+            height: int = None,
+            bg_color: tuple[int, int, int] = None,
+            text: str = None,
+            font: str = None,
+            font_color: tuple[int, int, int] = None,
+            font_size: int = None,
     ) -> None:
         self.width = width if width else self.width
         self.height = height if height else self.height
@@ -98,7 +97,9 @@ class Button(UiElement):
             font_size=font_size if font_size else self.font_size,
             text=text if text else self.content,
         )
-        self.text.rect.center = self.rect.center
+        self.text.rect.centerx = self.rect.centerx
+        self.text.rect.centery = self.rect.centery
+
 
     def set_active(self, active):
         self.active = active
@@ -110,3 +111,8 @@ class Button(UiElement):
             self.update_button(bg_color=self.bg_color)
             self.image.set_alpha(255)
             self.text.set_alpha(255)
+
+
+# TODO: Make the load button that displays the save files data
+class LoadButton(Button):
+    pass

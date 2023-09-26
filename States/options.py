@@ -104,13 +104,7 @@ class OptionsState:
             height=self.back_button.height,
             text=f"Play {'Windowed' if not pygame.display.is_fullscreen() else 'Fullscreen'}",
         )
-        self.volume.update_slider(
-            x=self.game.width // 2,
-            y=self.fullscreen_button.rect.top - self.fullscreen_button.height // 1.5,
-            width=self.game.width // 2,
-            height=self.fullscreen_button.height,
-            inner_text=f"Volume: {self.volume.value}%",
-        )
+
 
     def __repr__(self):
         return "OptionsState"
