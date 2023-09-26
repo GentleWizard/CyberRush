@@ -20,7 +20,7 @@ class MainMenuState:
             game=self.game,
         )
         self.load_button = Button(
-            y=self.resume_button.rect.bottom + self.resume_button.height // 1.5,
+            y=self.resume_button.rect.top + self.resume_button.height // 1.5,
             text="Load Game",
             text_color=(0, 0, 0),
             bg_color=(255, 255, 255),

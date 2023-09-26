@@ -14,7 +14,7 @@ class LoadState:
 
         self.back_button = Button(
             x=self.game.width // 2,
-            y=self.game.height - 100,
+            y=self.game.height // 2 * 1.8,
             width=self.game.width // 2,
             height=self.game.height // 10,
             text="Back",
@@ -94,6 +94,8 @@ class LoadState:
 
     def check_for_saves(self):
         self.back_button.set_active(False)
+        if not os.path.exists("saves"):
+            os.makedirs("saves")
         for file in os.listdir("saves"):
             if file.endswith(".pkl"):
                 self.saves.append(file)
@@ -102,7 +104,7 @@ class LoadState:
     def handle_gui(self):
         self.back_button.update_button(
             x=self.game.width // 2,
-            y=self.game.height - 100,
+            y=self.game.height // 2 * 1.8,
             width=self.game.width // 2,
             height=self.game.height // 10,
         )
